@@ -57,7 +57,7 @@ public class ChatServiceImpl implements ChatService {
 
     private ChatRequest complementRequest(ChatRequest original, String memoryContext) {
         if (memoryContext == null || memoryContext.isEmpty()) {
-            log.warn("Sent memory context = null");
+            log.warn("Memory context is empty, returning original request");
             return original;
         }
 

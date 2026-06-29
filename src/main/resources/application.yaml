@@ -18,4 +18,9 @@ logging:
     com:
       gme: DEBUG
 
+llm:
+  api:
+    url: http://localhost:11434/v1/chat/completions
+    key: dummy key
+
 
