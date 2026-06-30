@@ -23,4 +23,6 @@ llm:
     url: http://localhost:11434/v1/chat/completions
     key: dummy key
 
-
+init:
+  node:
+    weight: 0.5
