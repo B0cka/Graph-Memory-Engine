@@ -1,50 +1,55 @@
 package com.gme.service.impl;
 
 import com.gme.dto.response.ChatResponse;
+import com.gme.entity.NodeEntity;
 import com.gme.service.services.MemoryEngineService;
+import com.gme.service.services.NodeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class MemoryEngineServiceImpl implements MemoryEngineService {
 
+    private final NodeService nodeService;
+
     @Override
     public String retrieveContext(String query) {
         log.info("Retrieving context for query: {}", query);
 
-        // TODO: Implement graph retrieval
-        // 1. Embed query using ONNX
-        // 2. Find relevant nodes (cosine similarity)
-        // 3. Sort by combined score (cosine * 0.6 + weight * 0.4)
-        // 4. Format as text with token budget
+        List<NodeEntity> topNodes = nodeService.findTopByWeight(5);
 
-        // Пока возвращаем пустую строку
-        return "";
+        if (topNodes.isEmpty()) {
+            log.info("No nodes in graph yet");
+            return "";
+        }
+
+        StringBuilder context = new StringBuilder();
+        context.append("=== MEMORY CONTEXT ===\n");
+
+        for (NodeEntity node : topNodes) {
+            context.append(String.format(
+                    "[%s] %s (weight: %.2f)\n",
+                    node.getGraphType(),
+                    node.getContent(),
+                    node.getWeight()
+            ));
+        }
+
+        return context.toString();
     }
 
     @Override
     public void store(String userMessage, ChatResponse response) {
-        log.info("Storing in memory graph:");
-        log.info("  User: {}", userMessage);
-        log.info("  Assistant: {}", extractAssistantMessage(response));
+        log.info("Storing in memory graph");
 
-        // TODO: Implement graph storage
-        // 1. Parse userMessage + response (regex + LLM fallback)
-        // 2. Extract entities, emotions, actions
-        // 3. Create nodes in graph
-        // 4. Create edges
-        // 5. Log each change to changelog
+        String metadataJson = "{}";
+        nodeService.createNode(userMessage, "CHRONICLE", metadataJson);
 
-        // Пока ничего не делаем
-    }
-
-    private String extractAssistantMessage(ChatResponse response) {
-        if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
-            return "";
-        }
-        return response.getChoices().get(0).getMessage().getContent();
+        log.info("Created CHRONICLE node for user message");
     }
 }

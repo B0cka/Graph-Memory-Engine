@@ -2,6 +2,7 @@ package com.gme.service.impl;
 
 import com.gme.entity.NodeEntity;
 import com.gme.repository.NodeRepository;
+import com.gme.service.services.ChangelogService;
 import com.gme.service.services.NodeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class NodeServiceImpl implements NodeService {
 
     private final NodeRepository nodeRepository;
+    private final ChangelogService changelogService;
 
     @Value("${init.node.weight:0.5}")
     private double INIT_NODE_WEIGHT;
@@ -37,6 +39,7 @@ public class NodeServiceImpl implements NodeService {
                 .build();
 
         NodeEntity saved = nodeRepository.save(node);
+        changelogService.logNodeCreated(saved);
         log.info("Created {} node: {} (weight: {})", graphType, saved.getId(), saved.getWeight());
         return saved;
     }
